@@ -7,6 +7,7 @@ Official public-facing website for the REAP Alumni Association, created to conne
 - Responsive single-page layout
 - Alumni mission and vision
 - Membership benefits and opportunities
+- Restored, optimized REAP event photography with an accessible lightbox gallery
 - Events and leadership sections
 - Alumni interest form experience
 - Official links to REAP West Africa

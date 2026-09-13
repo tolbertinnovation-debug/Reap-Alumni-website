@@ -5,7 +5,17 @@
   const backToTop = document.querySelector('.back-to-top');
   const form = document.querySelector('#interest-form');
   const toast = document.querySelector('#form-toast');
+  const galleryCards = [...document.querySelectorAll('.gallery-card')];
+  const lightbox = document.querySelector('#gallery-lightbox');
+  const lightboxImage = lightbox.querySelector('.lightbox__image');
+  const lightboxTitle = lightbox.querySelector('.lightbox__title');
+  const lightboxCount = lightbox.querySelector('.lightbox__count');
+  const lightboxClose = lightbox.querySelector('.lightbox__close');
+  const lightboxPrevious = lightbox.querySelector('.lightbox__control--previous');
+  const lightboxNext = lightbox.querySelector('.lightbox__control--next');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let activeGalleryIndex = 0;
+  let galleryTrigger = null;
 
   document.querySelector('#current-year').textContent = new Date().getFullYear();
 
@@ -21,6 +31,51 @@
     document.body.classList.remove('nav-open');
   };
 
+  const updateLightbox = () => {
+    const card = galleryCards[activeGalleryIndex];
+    const image = card.querySelector('img');
+    const title = card.querySelector('strong').textContent;
+    lightboxImage.src = image.currentSrc || image.src;
+    lightboxImage.alt = image.alt;
+    lightboxTitle.textContent = title;
+    lightboxCount.textContent = `${activeGalleryIndex + 1} / ${galleryCards.length}`;
+  };
+
+  const openLightbox = (index, trigger) => {
+    activeGalleryIndex = index;
+    galleryTrigger = trigger;
+    updateLightbox();
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lightbox-open');
+    lightboxClose.focus();
+  };
+
+  const closeLightbox = () => {
+    if (!lightbox.classList.contains('open')) return;
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lightbox-open');
+    lightboxImage.removeAttribute('src');
+    if (galleryTrigger) galleryTrigger.focus();
+  };
+
+  const moveLightbox = (direction) => {
+    activeGalleryIndex = (activeGalleryIndex + direction + galleryCards.length) % galleryCards.length;
+    updateLightbox();
+  };
+
+  galleryCards.forEach((card, index) => {
+    card.addEventListener('click', () => openLightbox(index, card));
+  });
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightboxPrevious.addEventListener('click', () => moveLightbox(-1));
+  lightboxNext.addEventListener('click', () => moveLightbox(1));
+  lightbox.addEventListener('click', (event) => {
+    if (event.target === lightbox) closeLightbox();
+  });
+
   navToggle.addEventListener('click', () => {
     const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
     if (!isOpen) setMobileNavTop();
@@ -33,7 +88,13 @@
   primaryNav.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNavigation));
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeNavigation();
+    if (event.key === 'Escape') {
+      closeNavigation();
+      closeLightbox();
+    }
+    if (!lightbox.classList.contains('open')) return;
+    if (event.key === 'ArrowLeft') moveLightbox(-1);
+    if (event.key === 'ArrowRight') moveLightbox(1);
   });
 
   document.addEventListener('click', (event) => {
