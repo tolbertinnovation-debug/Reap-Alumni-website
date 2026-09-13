@@ -36,6 +36,12 @@
     if (event.key === 'Escape') closeNavigation();
   });
 
+  document.addEventListener('click', (event) => {
+    if (primaryNav.classList.contains('open') && !header.contains(event.target)) {
+      closeNavigation();
+    }
+  });
+
   const handleScroll = () => {
     const scrolled = window.scrollY > 20;
     header.classList.toggle('scrolled', scrolled);
