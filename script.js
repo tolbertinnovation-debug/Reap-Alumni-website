@@ -9,6 +9,11 @@
 
   document.querySelector('#current-year').textContent = new Date().getFullYear();
 
+  const setMobileNavTop = () => {
+    const headerBottom = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
+    document.documentElement.style.setProperty('--mobile-nav-top', `${headerBottom}px`);
+  };
+
   const closeNavigation = () => {
     navToggle.setAttribute('aria-expanded', 'false');
     navToggle.setAttribute('aria-label', 'Open navigation');
@@ -18,6 +23,7 @@
 
   navToggle.addEventListener('click', () => {
     const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
+    if (!isOpen) setMobileNavTop();
     navToggle.setAttribute('aria-expanded', String(!isOpen));
     navToggle.setAttribute('aria-label', isOpen ? 'Open navigation' : 'Close navigation');
     primaryNav.classList.toggle('open', !isOpen);
@@ -34,10 +40,18 @@
     const scrolled = window.scrollY > 20;
     header.classList.toggle('scrolled', scrolled);
     backToTop.classList.toggle('visible', window.scrollY > 650);
+    if (primaryNav.classList.contains('open')) setMobileNavTop();
   };
 
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll();
+
+  window.addEventListener('resize', () => {
+    setMobileNavTop();
+    if (window.innerWidth > 900) closeNavigation();
+  });
+
+  setMobileNavTop();
 
   backToTop.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
